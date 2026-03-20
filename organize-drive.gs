@@ -56,6 +56,10 @@ var FOLDER_CONFIG = {
   // Subfolders under SG Team Meeting
   ADA:              "Ada",
   SG_INTERVIEW:     "SG Interview",
+
+  // GemmComm folder tree
+  GEMMCOMM:         "GemmComm",
+  HECE_GRANT:       "HECE Grant",
 };
 
 
@@ -278,7 +282,18 @@ function getRules_() {
       destination: [FOLDER_CONFIG.ADMIN_OPS, FOLDER_CONFIG.SG_TEAM_DOCS]
     },
 
-    // ── 20. AGENDA / MEETING AGENDA FILES ────────────────────────────
+    // ── 20. FY25 RESILIENT MARYLAND / HECE GRANT FILES ──────────────
+    // Must come BEFORE general agenda rule
+    {
+      name: "HECE Grant / FY25 Resilient Maryland",
+      match: function(f) {
+        var n = f.getName().toLowerCase();
+        return n.indexOf("fy25 resilient") !== -1 || n.indexOf("resilient maryland") !== -1;
+      },
+      destination: [FOLDER_CONFIG.GEMMCOMM, FOLDER_CONFIG.HECE_GRANT]
+    },
+
+    // ── 21. AGENDA / MEETING AGENDA FILES ────────────────────────────
     // Must come BEFORE NDA rule because "agenda" contains "nda" as substring!
     {
       name: "Meeting agenda",

@@ -171,7 +171,6 @@ function organizeFiles() {
   // ── Print results ─────────────────────────────────────────────────────
 
   Logger.log("\n" + results.join("\n"));
-  SpreadsheetApp.getUi().alert("Done! Check View → Logs for details.");
 }
 
 

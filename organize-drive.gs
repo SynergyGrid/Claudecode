@@ -38,6 +38,7 @@ function organizeFiles() {
     { current: "Agenda creation SOP", renamed: "SOP_Agenda-Creation" },
     { current: "A024A (SOP) Extract Text And Logging", renamed: "A024-A_SOP_Extract-Text-and-Logging" },
     { current: "A024-B (SOP) Google Sheet to Pinecone", renamed: "A024-B_SOP_GoogleSheet-to-Pinecone" },
+    { current: "A024B (SOP) Google Sheet to Pinecone", renamed: "A024-B_SOP_GoogleSheet-to-Pinecone" },
     { current: "A092 Automation List to Pinecone", renamed: "A092_Automation-List-to-Pinecone" },
     { current: "7857716 Synergygrid (PE).pdf", renamed: "7857716_SynergyGrid-PE.pdf" },
     { current: "1980551217005-14137383053-ticket.pdf", renamed: "Ticket_1980551217005-14137383053.pdf" },
@@ -84,17 +85,17 @@ function organizeFiles() {
     // Ada's agenda → SG Team Meeting / Ada
     { file: "Ada_UnityCloud-Agenda", folderPath: ["SG Team Meeting", "Ada"] },
 
-    // Agenda SOP + PE doc → AdminOperations / SG Team Documents
-    { file: "SOP_Agenda-Creation", folderPath: ["AdminOperations"], folderSearch: "SG Team Docume" },
-    { file: "7857716_SynergyGrid-PE.pdf", folderPath: ["AdminOperations"], folderSearch: "SG Team Docume" },
+    // Agenda SOP + PE doc → Admin Operations / SG Team Documents
+    { file: "SOP_Agenda-Creation", folderPath: ["Admin Operations"], folderSearch: "SG Team Docume" },
+    { file: "7857716_SynergyGrid-PE.pdf", folderPath: ["Admin Operations"], folderSearch: "SG Team Docume" },
 
     // Automation SOPs → Automation Folder
     { file: "A024-A_SOP_Extract-Text-and-Logging", folderPath: ["Automation Folder"] },
     { file: "A024-B_SOP_GoogleSheet-to-Pinecone", folderPath: ["Automation Folder"] },
     { file: "A092_Automation-List-to-Pinecone", folderPath: ["Automation Folder"] },
 
-    // Ticket → AdminOperations
-    { file: "Ticket_1980551217005-14137383053.pdf", folderPath: ["AdminOperations"] },
+    // Ticket → Admin Operations
+    { file: "Ticket_1980551217005-14137383053.pdf", folderPath: ["Admin Operations"] },
   ];
 
   for (const m of moves) {

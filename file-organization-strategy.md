@@ -1,131 +1,102 @@
 # Google Drive File Organization Strategy
 
-## Current State Analysis
-
-From reviewing the Drive screenshots, the root of "My Drive" contains a mix of file types with inconsistent naming conventions. Files fall into several clear categories that should each have their own folder structure.
-
----
-
-## Identified File Categories & Proposed Folder Structure
-
-### 1. `Finance/`
-Financial statements, credit card records, and budget files.
-
-| Current Name | Proposed Rename | Subfolder |
-|---|---|---|
-| `2481_Capital One QuickSilver.csv` | `2481_CapitalOne_QuickSilver_Statement.csv` | `Finance/Credit-Cards/CapitalOne-QuickSilver-2481/` |
-| `2481_Capital One QuickSilver (1).csv` | `2481_CapitalOne_QuickSilver_Statement_v2.csv` | `Finance/Credit-Cards/CapitalOne-QuickSilver-2481/` |
-| `4250_Capital One Credit Card.csv` | `4250_CapitalOne_CreditCard_Statement.csv` | `Finance/Credit-Cards/CapitalOne-4250/` |
-| `4250_Capital One Credit Card (1).csv` | `4250_CapitalOne_CreditCard_Statement_v2.csv` | `Finance/Credit-Cards/CapitalOne-4250/` |
-| `4250_Capital One Credit Card (2).csv` | `4250_CapitalOne_CreditCard_Statement_v3.csv` | `Finance/Credit-Cards/CapitalOne-4250/` |
-| `8798_CapOne Credit Card.csv` | `8798_CapitalOne_CreditCard_Statement.csv` | `Finance/Credit-Cards/CapitalOne-8798/` |
-| `8798_CapOne Credit Card (1).csv` | `8798_CapitalOne_CreditCard_Statement_v2.csv` | `Finance/Credit-Cards/CapitalOne-8798/` |
-| `12 months energy usage.xlsx` | `12-Month_Energy_Usage_Report.xlsx` | `Finance/Utilities/` |
-| `Budget_11.5.2025` (Google Sheet) | `Budget_2025-11-05.gsheet` | `Finance/Budgets/` |
-| `Budget_11.5.2025 (Math Checked 2-12-26)` (Google Sheet) | `Budget_2025-11-05_Verified-2026-02-12.gsheet` | `Finance/Budgets/` |
-| `Budget_11.5.2025 (Math Checked 2-12-26).xlsx` (2 copies) | `Budget_2025-11-05_Verified-2026-02-12.xlsx` | `Finance/Budgets/` |
-
-**Note:** Duplicate `.xlsx` budget files (Feb 17 and Feb 18) should be compared — keep the most recent, archive or delete the older one.
-
-### 2. `SynergyGrid/`
-All Synergy Grid company files — meetings, courses, SOPs, and business documents.
-
-#### `SynergyGrid/Meetings/`
-| Current Name | Proposed Rename | Subfolder |
-|---|---|---|
-| `SG Team Meeting` (folder) | `Team-Meetings/` | `SynergyGrid/Meetings/Team-Meetings/` |
-| `August 7, 2025 \| Synergy Grid & Nicole Sitaraman...` | `2025-08-07_Nicole-Sitaraman_Microgrid-Course-Discussion.gdoc` | `SynergyGrid/Meetings/Notes/` |
-| `August 12, 2025 \| GreenFlo Microgrid Course...` | `2025-08-12_GreenFlo_Microgrid-Course-Review.gdoc` | `SynergyGrid/Meetings/Notes/` |
-| `August 13, 2025 \| Course Content Restructuring...` | `2025-08-13_Course-Content-Restructuring.gdoc` | `SynergyGrid/Meetings/Notes/` |
-| `August 13, 2025 \| Synergy Grid & Jamal Lewis...` | `2025-08-13_Jamal-Lewis_Course-Content-Review.gdoc` | `SynergyGrid/Meetings/Notes/` |
-| `August 14, 2025 \| Introduction to Microgrids...` | `2025-08-14_Intro-Microgrids-Course-Overview.gdoc` | `SynergyGrid/Meetings/Notes/` |
-| `2nd half Oct 2, 2025 \| Developing Community Microgrids` | `2025-10-02_Community-Microgrids-Part2.gdoc` | `SynergyGrid/Meetings/Notes/` |
-| `A043 Meeting Summary` (Feb 17 copy) | `A043_Meeting-Summary_v1.gdoc` | `SynergyGrid/Meetings/Summaries/` |
-| `A043 Meeting Summary` (Feb 18 copy) | `A043_Meeting-Summary_v2.gdoc` | `SynergyGrid/Meetings/Summaries/` |
-| `Ada's UnityCloud Agenda` | `UnityCloud_Agenda_Ada.gdoc` | `SynergyGrid/Meetings/Agendas/` |
-| `Agenda creation SOP` | `SOP_Agenda-Creation.gdoc` | `SynergyGrid/SOPs/` |
-
-#### `SynergyGrid/Documents/`
-| Current Name | Proposed Rename | Subfolder |
-|---|---|---|
-| `7857716 Synergygrid (PE).pdf` | `SynergyGrid_PE_Doc_7857716.pdf` | `SynergyGrid/Documents/` |
-
-### 3. `Automation/`
-SOPs and tools related to automation workflows (Pinecone, text extraction, etc.).
-
-| Current Name | Proposed Rename | Subfolder |
-|---|---|---|
-| `A024-B (SOP) Google Sheet to Pinecone` | `A024-B_SOP_GoogleSheet-to-Pinecone.gslides` | `Automation/SOPs/` |
-| `A024A (SOP) Extract Text And Logging` | `A024-A_SOP_Extract-Text-and-Logging.gslides` | `Automation/SOPs/` |
-| `A092 Automation List to Pinecone` | `A092_Automation-List-to-Pinecone.gslides` | `Automation/Workflows/` |
-
-### 4. `Personal/`
-Tickets and personal documents.
-
-| Current Name | Proposed Rename | Subfolder |
-|---|---|---|
-| `1980551217005-14137383053-ticket.pdf` | `Ticket_1980551217005-14137383053.pdf` | `Personal/Tickets/` |
-
----
-
-## Proposed Folder Tree
-
-```
-My Drive/
-├── Finance/
-│   ├── Budgets/
-│   ├── Credit-Cards/
-│   │   ├── CapitalOne-QuickSilver-2481/
-│   │   ├── CapitalOne-4250/
-│   │   └── CapitalOne-8798/
-│   └── Utilities/
-├── SynergyGrid/
-│   ├── Meetings/
-│   │   ├── Team-Meetings/        (existing folder moved here)
-│   │   ├── Notes/                (meeting transcripts & notes)
-│   │   ├── Summaries/            (A043 etc.)
-│   │   └── Agendas/
-│   ├── SOPs/                     (standard operating procedures)
-│   ├── Courses/                  (microgrid course content, if applicable)
-│   └── Documents/                (PE docs, general business docs)
-├── Automation/
-│   ├── SOPs/                     (automation procedure docs)
-│   └── Workflows/                (pipeline & integration configs)
-└── Personal/
-    └── Tickets/
-```
-
----
-
 ## Naming Convention Rules
 
-1. **Dates**: Use `YYYY-MM-DD` format (e.g., `2025-08-07`) — sorts chronologically
-2. **Separators**: Use hyphens (`-`) within words, underscores (`_`) between fields
-   - Pattern: `[Date]_[Topic-or-Description]_[Version].ext`
-3. **No spaces**: Replace all spaces with hyphens for cleaner file paths
-4. **No parenthetical duplicates**: Replace `(1)`, `(2)` with `_v2`, `_v3` or more descriptive suffixes
-5. **Consistent abbreviations**: Always use `CapitalOne` (not `CapOne`), `SOP` (not `sop`)
-6. **ID prefixes preserved**: Keep codes like `A024`, `A043`, `A092` — they appear to be internal tracking IDs
+1. **Dates**: Use `YYYY-MM-DD` format — sorts chronologically
+2. **Separators**: Underscores (`_`) between logical fields, hyphens (`-`) within multi-word phrases
+3. **No spaces**: Replace all spaces with hyphens
+4. **No parenthetical duplicates**: Replace `(1)`, `(2)` with `_v2`, `_v3` or descriptive suffixes
+5. **Consistent naming**: Always use full names (e.g., `CapitalOne` not `CapOne`)
+6. **Internal IDs preserved**: Keep codes like `A024`, `A043`, `A092`
 
 ---
 
-## Action Items
+## File Renames — By Category
 
-- [ ] Create the folder structure above in Google Drive
-- [ ] Deduplicate files (Budget xlsx copies, A043 Meeting Summary copies) — compare contents, keep latest
-- [ ] Rename files per the tables above
-- [ ] Move files into their designated folders
-- [ ] Review remaining files not visible in screenshots (scroll down) for the same treatment
-- [ ] Set up Google Drive "Suggest file moves" to maintain organization going forward
+### Credit Card Statements
+
+| # | Current Name | Renamed |
+|---|---|---|
+| 1 | `2481_Capital One QuickSilver.csv` | `2481_CapitalOne-QuickSilver_Statement.csv` |
+| 2 | `2481_Capital One QuickSilver (1).csv` | `2481_CapitalOne-QuickSilver_Statement_v2.csv` |
+| 3 | `4250_Capital One Credit Card.csv` | `4250_CapitalOne_Statement.csv` |
+| 4 | `4250_Capital One Credit Card (1).csv` | `4250_CapitalOne_Statement_v2.csv` |
+| 5 | `4250_Capital One Credit Card (2).csv` | `4250_CapitalOne_Statement_v3.csv` |
+| 6 | `8798_CapOne Credit Card.csv` | `8798_CapitalOne_Statement.csv` |
+| 7 | `8798_CapOne Credit Card (1).csv` | `8798_CapitalOne_Statement_v2.csv` |
+
+> **Duplicate check:** The `(1)` and `(2)` copies may be different date ranges or true duplicates. Compare file sizes — if identical, delete the extras.
+
+### Budgets & Financial Reports
+
+| # | Current Name | Renamed |
+|---|---|---|
+| 8 | `12 months energy usage.xlsx` | `12-Month-Energy-Usage_Report.xlsx` |
+| 9 | `Budget_11.5.2025` (Google Sheet) | `Budget_2025-11-05` |
+| 10 | `Budget_11.5.2025 (Math Checked 2-12-26)` (Google Sheet) | `Budget_2025-11-05_Verified-2026-02-12` |
+| 11 | `Budget_11.5.2025 (Math Checked 2-12-26).xlsx` (Feb 17, 17 KB) | `Budget_2025-11-05_Verified-2026-02-12.xlsx` |
+| 12 | `Budget_11.5.2025 (Math Checked 2-12-26).xlsx` (Feb 18, 16 KB) | **DELETE** — likely older copy of #11 |
+
+> **Duplicate check:** Two `.xlsx` budget files with same name (Feb 17 = 17 KB, Feb 18 = 16 KB). Compare and keep the most complete.
+
+### Meeting Notes (Synergy Grid)
+
+| # | Current Name | Renamed |
+|---|---|---|
+| 13 | `2nd half Oct 2, 2025 \| Developing Community Microgrids` | `2025-10-02_Developing-Community-Microgrids_Part-2` |
+| 14 | `August 7, 2025 \| Synergy Grid & Nicole Sitaraman: Microgrid Course & Industry Discussion` | `2025-08-07_Nicole-Sitaraman_Microgrid-Course-Industry-Discussion` |
+| 15 | `August 12, 2025 \| GreenFlo Microgrid Course Content Review` | `2025-08-12_GreenFlo_Microgrid-Course-Content-Review` |
+| 16 | `August 13, 2025 \| Course Content Restructuring Meeting` | `2025-08-13_Course-Content-Restructuring-Meeting` |
+| 17 | `August 13, 2025 \| Synergy Grid & Jamal Lewis Course Content Review` | `2025-08-13_Jamal-Lewis_Course-Content-Review` |
+| 18 | `August 14, 2025 \| Introduction to Microgrids Course Overview` | `2025-08-14_Intro-to-Microgrids-Course-Overview` |
+| 19 | `A043 Meeting Summary` (Feb 17, 1 KB) | `A043_Meeting-Summary` |
+| 20 | `A043 Meeting Summary` (Feb 18, 1 KB) | **DELETE** — duplicate of #19 |
+| 21 | `Ada's UnityCloud Agenda` | `Ada_UnityCloud-Agenda` |
+| 22 | `Agenda creation SOP` | `SOP_Agenda-Creation` |
+
+> **Pattern applied:** All meeting notes now lead with `YYYY-MM-DD` so they sort chronologically. The pipe (`|`) separator is removed.
+
+### Automation SOPs & Workflows
+
+| # | Current Name | Renamed |
+|---|---|---|
+| 23 | `A024A (SOP) Extract Text And Logging` | `A024-A_SOP_Extract-Text-and-Logging` |
+| 24 | `A024-B (SOP) Google Sheet to Pinecone` | `A024-B_SOP_GoogleSheet-to-Pinecone` |
+| 25 | `A092 Automation List to Pinecone` | `A092_Automation-List-to-Pinecone` |
+
+> **Pattern applied:** ID codes kept as prefix, `(SOP)` normalized to `_SOP_`, consistent hyphenation.
+
+### Business & Personal Documents
+
+| # | Current Name | Renamed |
+|---|---|---|
+| 26 | `7857716 Synergygrid (PE).pdf` | `7857716_SynergyGrid-PE.pdf` |
+| 27 | `1980551217005-14137383053-ticket.pdf` | `Ticket_1980551217005-14137383053.pdf` |
+
+### Folders
+
+| # | Current Name | Renamed |
+|---|---|---|
+| 28 | `SG Team Meeting` | `SG-Team-Meetings` |
 
 ---
 
-## Duplicate Files to Investigate
+## Existing Folder Destinations
 
-| Files | Action |
+Based on what's visible, the existing folder structure should be used as-is. Move files into:
+
+| Destination Folder | Files to Move (by #) |
 |---|---|
-| `A043 Meeting Summary` (Feb 17) vs `A043 Meeting Summary` (Feb 18) | Compare content, keep most complete version |
-| `Budget_11.5.2025 (Math Checked 2-12-26).xlsx` (Feb 17) vs same (Feb 18) | Compare content, keep most recent |
-| `2481_Capital One QuickSilver.csv` vs `(1)` copy | Check if identical or different date ranges |
-| `4250_Capital One Credit Card.csv` + `(1)` + `(2)` copies | Check if identical or different date ranges |
-| `8798_CapOne Credit Card.csv` vs `(1)` copy | Check if identical or different date ranges |
+| `SG-Team-Meetings/` (renamed #28) | #13–20 (all meeting notes & summaries) |
+| Root (keep in place) | #1–12 (financial files), #21–27 (SOPs, documents) |
+
+> If additional folders exist deeper in the Drive, meeting notes and SOPs should be moved into the most relevant existing subfolder rather than staying at root level.
+
+---
+
+## Summary of Changes
+
+- **28 files/folders** reviewed
+- **26 renames** proposed
+- **2 deletions** recommended (duplicates)
+- **Key fixes:** Date format standardization, space removal, `CapOne` → `CapitalOne`, `(1)`/`(2)` → `_v2`/`_v3`, pipe separators removed

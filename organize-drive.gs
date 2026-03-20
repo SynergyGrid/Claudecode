@@ -58,7 +58,7 @@ var FOLDER_CONFIG = {
   SG_INTERVIEW:     "SG Interview",
 
   // GemmComm folder tree
-  GEMMCOMM:         "GemmComm",
+  GEMMCOMM:         "GemmComm(Khalid Malik)",
   HECE_GRANT:       "HECE Grant",
 };
 

@@ -278,14 +278,26 @@ function getRules_() {
       destination: [FOLDER_CONFIG.ADMIN_OPS, FOLDER_CONFIG.SG_TEAM_DOCS]
     },
 
-    // ── 20. NDA FILES ────────────────────────────────────────────────
+    // ── 20. AGENDA / MEETING AGENDA FILES ────────────────────────────
+    // Must come BEFORE NDA rule because "agenda" contains "nda" as substring!
+    {
+      name: "Meeting agenda",
+      match: function(f) {
+        var n = f.getName().toLowerCase();
+        return n.indexOf("agenda") !== -1 || n.indexOf("bimonthly meeting") !== -1;
+      },
+      destination: [FOLDER_CONFIG.SG_TEAM_MEETING]
+    },
+
+    // ── 21. NDA FILES ────────────────────────────────────────────────
+    // Uses word-boundary regex to avoid matching "agenda", "calendar", etc.
     {
       name: "NDA",
       match: function(f) {
         var n = f.getName().toLowerCase();
-        return n.indexOf("nda") !== -1 || n.indexOf("non-disclosure") !== -1
+        return n.match(/\bnda\b/) !== null || n.indexOf("non-disclosure") !== -1
                || n.indexOf("non disclosure") !== -1 || n.indexOf("confidentiality") !== -1
-               || n.indexOf("mutual") !== -1;
+               || n.indexOf("mutual nda") !== -1;
       },
       destination: [FOLDER_CONFIG.CONSULTING, FOLDER_CONFIG.NDA]
     },

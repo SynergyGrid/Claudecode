@@ -1,19 +1,17 @@
 /**
- * Google Drive File Organization Script — COMPREHENSIVE
+ * Google Drive File Organization Script — COMPREHENSIVE (v2 FIXED)
  *
- * This script scans ALL files in My Drive (not in subfolders) and uses
+ * This script scans ALL files in My Drive root and uses
  * pattern-matching rules to move them into the correct folders.
  *
  * How to run:
  * 1. Go to https://script.google.com
  * 2. Create a new project (or replace existing script)
  * 3. Paste this entire script
- * 4. Click Run -> select "organizeAllFiles"
+ * 4. Click Run -> select "previewOrganization" first
  * 5. Authorize when prompted (it needs Drive access)
  * 6. Check the Execution Log for results
- *
- * IMPORTANT: Run "previewOrganization" first to see what WOULD happen
- * without actually moving anything. Then run "organizeAllFiles" to execute.
+ * 7. If preview looks good, run "organizeAllFiles"
  *
  * If you have more than ~500 files at root, Apps Script may time out (6 min).
  * In that case, run "organizeAllFilesBatched" which processes in batches
@@ -22,37 +20,40 @@
 
 
 // ═══════════════════════════════════════════════════════════════════════
-// CONFIGURATION — Update these folder names if yours differ
+// CONFIGURATION — Corrected to match EXACT folder names in your Drive
 // ═══════════════════════════════════════════════════════════════════════
 
 var FOLDER_CONFIG = {
   // Top-level folders (exact names as they appear in your Drive)
   CONSULTING:       "_Consulting",
   ACCOUNTING:       "Accounting",
-  ADMIN_OPS:        "AdminOperations",
+  ADMIN_OPS:        "Admin Operations",       // HAS A SPACE
   AI:               "AI",
   AUTOMATION:       "Automation Folder",
-  MICROGRID:        "Microgrid modules",
   SG_TEAM_MEETING:  "SG Team Meeting",
 
-  // Subfolders (partial names OK — script does startsWith matching)
+  // Subfolders under Accounting
   BILLING:          "Billing & Invoices",
-  FINANCIAL_DOCS:   "Financial Docume",       // truncated in Drive UI
-  CALL_TRANSCRIPTS: "Call Transcription",
-  SG_TEAM_DOCS:    "SG Team Documents",      // truncated in Drive UI
-  FIREFLIES:        "(GF) Fireflies Meetings",
-  ACTIVE_PROJECTS:  "Active Projects",
-  RFP:              "RFP",
-  PRESENTATIONS:    "Presentations",
-  CONTACTS:         "Contacts",
-  HR:               "HR",
-  NDA:              "NDA",
-  CASE_STUDIES:     "Case studies",
-  TEACHING_DOCS:    "Teaching Documents",
+  FINANCIAL_DOCS:   "Financial Documents",
   TAX_DOCS:         "Tax Documents",
   INSURANCE:        "BiBerk Insurance",
 
-  // Sub-subfolders
+  // Subfolders under Admin Operations
+  CALL_TRANSCRIPTS: "Call Transcription",
+  SG_TEAM_DOCS:     "SG Team Documents",
+  RFP:              "RFP's",                  // HAS APOSTROPHE
+  PRESENTATIONS:    "Presentations",
+  CONTACTS:         "Contacts",
+  HR:               "HR",
+  COMPANY_PROJECTS: "Comapny Projects",       // TYPO IN ORIGINAL FOLDER NAME
+  EVENTS:           "Events, Conference, Speaking Engagement Documents",
+
+  // Subfolders under _Consulting
+  FIREFLIES:        "(GF) Fireflies Meetings",
+  ACTIVE_PROJECTS:  "Active Projects",
+  NDA:              "NDA",
+
+  // Subfolders under SG Team Meeting
   ADA:              "Ada",
   SG_INTERVIEW:     "SG Interview",
 };
@@ -66,7 +67,6 @@ function getRules_() {
   return [
 
     // ── 1. TRANSCRIPTS (Fireflies .txt files) ────────────────────────
-    // Pattern: anything with "-transcript-" and a timestamp in the name
     {
       name: "Fireflies transcript",
       match: function(f) {
@@ -76,8 +76,7 @@ function getRules_() {
       destination: [FOLDER_CONFIG.ADMIN_OPS, FOLDER_CONFIG.CALL_TRANSCRIPTS]
     },
 
-    // ── 2. CURRICULUM UPDATES (Google Docs meeting notes) ────────────
-    // Pattern: "Mon DD, YYYY | Curriculum Updates" or similar dated meeting notes
+    // ── 2. DATED MEETING NOTES (Google Docs with | separator) ────────
     {
       name: "Dated meeting note (| separator)",
       match: function(f) {
@@ -128,7 +127,17 @@ function getRules_() {
       destination: [FOLDER_CONFIG.ACCOUNTING, FOLDER_CONFIG.BILLING]
     },
 
-    // ── 7. TAX DOCUMENTS ─────────────────────────────────────────────
+    // ── 7. BILLING / MONTHLY BILLING ─────────────────────────────────
+    {
+      name: "Billing document",
+      match: function(f) {
+        var n = f.getName().toLowerCase();
+        return n.indexOf("billing") !== -1 || n.indexOf("expense") !== -1;
+      },
+      destination: [FOLDER_CONFIG.ACCOUNTING, FOLDER_CONFIG.BILLING]
+    },
+
+    // ── 8. TAX DOCUMENTS ─────────────────────────────────────────────
     {
       name: "Tax document",
       match: function(f) {
@@ -139,7 +148,7 @@ function getRules_() {
       destination: [FOLDER_CONFIG.ACCOUNTING, FOLDER_CONFIG.TAX_DOCS]
     },
 
-    // ── 8. INSURANCE ─────────────────────────────────────────────────
+    // ── 9. INSURANCE ─────────────────────────────────────────────────
     {
       name: "Insurance document",
       match: function(f) {
@@ -149,19 +158,20 @@ function getRules_() {
       destination: [FOLDER_CONFIG.ACCOUNTING, FOLDER_CONFIG.INSURANCE]
     },
 
-    // ── 9. MSA / CONTRACTS / SIGNED AGREEMENTS ───────────────────────
+    // ── 10. MSA / CONTRACTS / SIGNED AGREEMENTS ──────────────────────
     {
       name: "Contract / MSA / Agreement",
       match: function(f) {
         var n = f.getName().toLowerCase();
         return n.indexOf("msa") !== -1 || n.indexOf("signed") !== -1
                || n.indexOf("addendum") !== -1 || n.indexOf("partnership") !== -1
-               || n.indexOf("agreement") !== -1 || n.indexOf("contract") !== -1;
+               || n.indexOf("agreement") !== -1 || n.indexOf("contract") !== -1
+               || n.indexOf("fully executed") !== -1 || n.indexOf("amendment") !== -1;
       },
       destination: [FOLDER_CONFIG.ADMIN_OPS, FOLDER_CONFIG.SG_TEAM_DOCS]
     },
 
-    // ── 10. PROPOSALS / RFPs ─────────────────────────────────────────
+    // ── 11. PROPOSALS / RFPs ─────────────────────────────────────────
     {
       name: "Proposal / RFP",
       match: function(f) {
@@ -172,7 +182,7 @@ function getRules_() {
       destination: [FOLDER_CONFIG.ADMIN_OPS, FOLDER_CONFIG.RFP]
     },
 
-    // ── 11. RATE SCHEDULES ───────────────────────────────────────────
+    // ── 12. RATE SCHEDULES ───────────────────────────────────────────
     {
       name: "Rate schedule",
       match: function(f) {
@@ -183,20 +193,23 @@ function getRules_() {
       destination: [FOLDER_CONFIG.ACCOUNTING, FOLDER_CONFIG.FINANCIAL_DOCS]
     },
 
-    // ── 12. COURSE MATERIALS (VPP, Microgrid courses, course trackers) ──
+    // ── 13. COURSE MATERIALS (VPP, Microgrid courses, CBCS) ──────────
+    // NOTE: "Microgrid modules" is a SHARED folder — can't move files there.
+    // Course materials go to Admin Operations / SG Team Documents instead.
     {
       name: "Course material",
       match: function(f) {
         var n = f.getName().toLowerCase();
         return (n.indexOf("course") !== -1 && (n.indexOf("vpp") !== -1 || n.indexOf("virtual power") !== -1
                 || n.indexOf("microgrid") !== -1 || n.indexOf("module") !== -1
-                || n.indexOf("tracker") !== -1 || n.indexOf("build") !== -1))
+                || n.indexOf("tracker") !== -1 || n.indexOf("build") !== -1
+                || n.indexOf("community") !== -1))
                || n.indexOf("cbcs") !== -1;
       },
-      destination: [FOLDER_CONFIG.MICROGRID]
+      destination: [FOLDER_CONFIG.ADMIN_OPS, FOLDER_CONFIG.SG_TEAM_DOCS]
     },
 
-    // ── 13. SOPs (Standard Operating Procedures) ─────────────────────
+    // ── 14. SOPs (Standard Operating Procedures) ─────────────────────
     {
       name: "SOP document",
       match: function(f) {
@@ -206,7 +219,7 @@ function getRules_() {
       destination: [FOLDER_CONFIG.AUTOMATION]
     },
 
-    // ── 14. AUTOMATION SCRIPTS (A0XX codes, automation, pinecone) ────
+    // ── 15. AUTOMATION SCRIPTS (A0XX codes, automation, pinecone) ────
     {
       name: "Automation document",
       match: function(f) {
@@ -218,7 +231,7 @@ function getRules_() {
       destination: [FOLDER_CONFIG.AUTOMATION]
     },
 
-    // ── 15. ADA-RELATED FILES ────────────────────────────────────────
+    // ── 16. ADA-RELATED FILES ────────────────────────────────────────
     {
       name: "Ada document",
       match: function(f) {
@@ -228,18 +241,19 @@ function getRules_() {
       destination: [FOLDER_CONFIG.SG_TEAM_MEETING, FOLDER_CONFIG.ADA]
     },
 
-    // ── 16. MEETING SUMMARIES ────────────────────────────────────────
+    // ── 17. MEETING SUMMARIES / MEETING ITINERARY ────────────────────
     {
       name: "Meeting summary",
       match: function(f) {
         var n = f.getName().toLowerCase();
         return n.indexOf("meeting summary") !== -1 || n.indexOf("meeting-summary") !== -1
-               || n.indexOf("meeting notes") !== -1 || n.indexOf("meeting-notes") !== -1;
+               || n.indexOf("meeting notes") !== -1 || n.indexOf("meeting-notes") !== -1
+               || n.indexOf("meeting itinerary") !== -1 || n.indexOf("daily meetings") !== -1;
       },
       destination: [FOLDER_CONFIG.SG_TEAM_MEETING]
     },
 
-    // ── 17. PRESENTATION FILES ───────────────────────────────────────
+    // ── 18. PRESENTATION FILES ───────────────────────────────────────
     {
       name: "Presentation",
       match: function(f) {
@@ -248,12 +262,13 @@ function getRules_() {
         return mime === "application/vnd.google-apps.presentation"
                || n.indexOf(".pptx") !== -1 || n.indexOf(".ppt") !== -1
                || n.indexOf("presentation") !== -1 || n.indexOf("slide") !== -1
-               || n.indexOf("deck") !== -1;
+               || n.indexOf("deck") !== -1 || n.indexOf("canvaready") !== -1
+               || n.indexOf("test draft") !== -1;
       },
       destination: [FOLDER_CONFIG.ADMIN_OPS, FOLDER_CONFIG.PRESENTATIONS]
     },
 
-    // ── 18. TEMPLATES ────────────────────────────────────────────────
+    // ── 19. TEMPLATES ────────────────────────────────────────────────
     {
       name: "Template",
       match: function(f) {
@@ -263,18 +278,19 @@ function getRules_() {
       destination: [FOLDER_CONFIG.ADMIN_OPS, FOLDER_CONFIG.SG_TEAM_DOCS]
     },
 
-    // ── 19. NDA FILES ────────────────────────────────────────────────
+    // ── 20. NDA FILES ────────────────────────────────────────────────
     {
       name: "NDA",
       match: function(f) {
         var n = f.getName().toLowerCase();
         return n.indexOf("nda") !== -1 || n.indexOf("non-disclosure") !== -1
-               || n.indexOf("non disclosure") !== -1 || n.indexOf("confidentiality") !== -1;
+               || n.indexOf("non disclosure") !== -1 || n.indexOf("confidentiality") !== -1
+               || n.indexOf("mutual") !== -1;
       },
       destination: [FOLDER_CONFIG.CONSULTING, FOLDER_CONFIG.NDA]
     },
 
-    // ── 20. RESUME / HR FILES ────────────────────────────────────────
+    // ── 21. RESUME / HR FILES ────────────────────────────────────────
     {
       name: "HR document",
       match: function(f) {
@@ -286,19 +302,21 @@ function getRules_() {
       destination: [FOLDER_CONFIG.ADMIN_OPS, FOLDER_CONFIG.HR]
     },
 
-    // ── 21. SYNERGY GRID BUSINESS DOCS (PE filings, registration) ───
+    // ── 22. SYNERGY GRID BUSINESS DOCS ───────────────────────────────
+    // PE filings, registration, blockers, development plans
     {
       name: "SynergyGrid business doc",
       match: function(f) {
         var n = f.getName().toLowerCase();
-        return (n.indexOf("synergy") !== -1 || n.indexOf("synergygrid") !== -1)
+        return (n.indexOf("synergy") !== -1 || n.indexOf("synergygrid") !== -1 || n.indexOf("synergrid") !== -1)
                && (n.indexOf("pe") !== -1 || n.indexOf("filing") !== -1
-                   || n.indexOf("registration") !== -1 || n.indexOf("certificate") !== -1);
+                   || n.indexOf("registration") !== -1 || n.indexOf("certificate") !== -1
+                   || n.indexOf("blocker") !== -1);
       },
       destination: [FOLDER_CONFIG.ADMIN_OPS, FOLDER_CONFIG.SG_TEAM_DOCS]
     },
 
-    // ── 22. TICKET / RECEIPT FILES ───────────────────────────────────
+    // ── 23. TICKET / RECEIPT FILES ───────────────────────────────────
     {
       name: "Ticket / Receipt",
       match: function(f) {
@@ -308,7 +326,7 @@ function getRules_() {
       destination: [FOLDER_CONFIG.ADMIN_OPS]
     },
 
-    // ── 23. AI-RELATED DOCS ──────────────────────────────────────────
+    // ── 24. AI-RELATED DOCS ──────────────────────────────────────────
     {
       name: "AI document",
       match: function(f) {
@@ -320,8 +338,7 @@ function getRules_() {
       destination: [FOLDER_CONFIG.AI]
     },
 
-    // ── 24. GREENFLO / JORDAN RELATED ────────────────────────────────
-    // Files about GreenFlo or Jordan that aren't transcripts (transcripts caught by rule 1)
+    // ── 25. GREENFLO / PARTNER DOCS ──────────────────────────────────
     {
       name: "GreenFlo / Partner doc",
       match: function(f) {
@@ -330,12 +347,99 @@ function getRules_() {
       },
       destination: [FOLDER_CONFIG.CONSULTING, FOLDER_CONFIG.FIREFLIES]
     },
+
+    // ── 26. SOFTWARE / PLATFORM DOCS (PRD, Architecture, etc.) ───────
+    {
+      name: "Software / Platform doc",
+      match: function(f) {
+        var n = f.getName().toLowerCase();
+        return n.indexOf("prd") !== -1 || n.indexOf("architecture") !== -1
+               || n.indexOf("development plan") !== -1 || n.indexOf("software outline") !== -1
+               || n.indexOf("code architecture") !== -1 || n.indexOf("platform") !== -1
+               || n.indexOf("synergenius") !== -1 || n.indexOf("senor genius") !== -1;
+      },
+      destination: [FOLDER_CONFIG.ADMIN_OPS, FOLDER_CONFIG.COMPANY_PROJECTS]
+    },
+
+    // ── 27. TRIBAL / COMMUNITY DOCS ──────────────────────────────────
+    {
+      name: "Tribal / Community doc",
+      match: function(f) {
+        var n = f.getName().toLowerCase();
+        return n.indexOf("tribal") !== -1 || n.indexOf("community benefit") !== -1;
+      },
+      destination: [FOLDER_CONFIG.ADMIN_OPS, FOLDER_CONFIG.SG_TEAM_DOCS]
+    },
+
+    // ── 28. EVENTS / CONFERENCE DOCS ─────────────────────────────────
+    {
+      name: "Events / Conference doc",
+      match: function(f) {
+        var n = f.getName().toLowerCase();
+        return n.indexOf("conference") !== -1 || n.indexOf("speaking") !== -1
+               || n.indexOf("event") !== -1 || n.indexOf("summit") !== -1
+               || n.indexOf("webinar") !== -1 || n.indexOf("noaa") !== -1
+               || n.indexOf("fy25 resilient") !== -1;
+      },
+      destination: [FOLDER_CONFIG.ADMIN_OPS, FOLDER_CONFIG.EVENTS]
+    },
+
+    // ── 29. LBNL / LAB DOCS ─────────────────────────────────────────
+    {
+      name: "LBNL / Lab doc",
+      match: function(f) {
+        var n = f.getName().toLowerCase();
+        return n.indexOf("lbnl") !== -1 || n.indexOf("lawrence berkeley") !== -1;
+      },
+      destination: [FOLDER_CONFIG.ACCOUNTING, FOLDER_CONFIG.BILLING]
+    },
+
+    // ── 30. SYNERGY GRID GENERAL (catch-all for remaining SG files) ──
+    {
+      name: "SynergyGrid general doc",
+      match: function(f) {
+        var n = f.getName().toLowerCase();
+        return n.indexOf("synergy grid") !== -1 || n.indexOf("synergygrid") !== -1
+               || n.indexOf("synergy-grid") !== -1;
+      },
+      destination: [FOLDER_CONFIG.ADMIN_OPS, FOLDER_CONFIG.SG_TEAM_DOCS]
+    },
+
+    // ── 31. CONTRACTS CONTEXT / LEGAL ────────────────────────────────
+    {
+      name: "Legal / Contracts doc",
+      match: function(f) {
+        var n = f.getName().toLowerCase();
+        return n.indexOf("contracts context") !== -1 || n.indexOf("legal") !== -1;
+      },
+      destination: [FOLDER_CONFIG.ADMIN_OPS, FOLDER_CONFIG.SG_TEAM_DOCS]
+    },
+
+    // ── 32. MICROGRID (standalone keyword — not in a course context) ─
+    {
+      name: "Microgrid doc",
+      match: function(f) {
+        var n = f.getName().toLowerCase();
+        return n.indexOf("microgrid") !== -1;
+      },
+      destination: [FOLDER_CONFIG.ADMIN_OPS, FOLDER_CONFIG.SG_TEAM_DOCS]
+    },
+
+    // ── 33. VPP DOCUMENTS ────────────────────────────────────────────
+    {
+      name: "VPP doc",
+      match: function(f) {
+        var n = f.getName().toLowerCase();
+        return n.indexOf("vpp") !== -1 || n.indexOf("virtual power") !== -1;
+      },
+      destination: [FOLDER_CONFIG.ADMIN_OPS, FOLDER_CONFIG.SG_TEAM_DOCS]
+    },
   ];
 }
 
 
 // ═══════════════════════════════════════════════════════════════════════
-// STEP 1: RENAME FILES (from previous strategy — run once)
+// RENAME FILES (from previous strategy — run once)
 // ═══════════════════════════════════════════════════════════════════════
 
 function getRenames_() {
@@ -390,7 +494,6 @@ function organizeAllFiles() {
 function runOrganization_(dryRun) {
   var log = [];
   var moved = 0;
-  var skipped = 0;
   var unmatched = 0;
   var renamed = 0;
   var errors = 0;
@@ -423,7 +526,7 @@ function runOrganization_(dryRun) {
   var root = DriveApp.getRootFolder();
   var rootFiles = root.getFiles();
   var rules = getRules_();
-  var folderCache = {}; // Cache resolved folders to avoid repeated lookups
+  var folderCache = {};
   var unmatchedFiles = [];
 
   while (rootFiles.hasNext()) {
@@ -431,13 +534,12 @@ function runOrganization_(dryRun) {
     var fileName = file.getName();
     var matchedRule = null;
 
-    // Skip folders (this iterator only returns files, but just in case)
-    // Skip Google Apps Script projects — they can't be moved
+    // Skip Google Apps Script projects
     if (file.getMimeType() === "application/vnd.google-apps.script") {
       continue;
     }
 
-    // Try each rule in order
+    // Try each rule in order — first match wins
     for (var r = 0; r < rules.length; r++) {
       try {
         if (rules[r].match(file)) {
@@ -451,7 +553,6 @@ function runOrganization_(dryRun) {
     }
 
     if (matchedRule) {
-      // Resolve destination folder (with caching)
       var destKey = matchedRule.destination.join("/");
       var destFolder = folderCache[destKey];
 
@@ -487,13 +588,7 @@ function runOrganization_(dryRun) {
     }
   }
 
-  // ── Step 3: Also scan files NOT in any folder (orphaned files) ────
-  log.push("");
-  log.push("── SCANNING FOR ORPHANED FILES (not in any folder) ──");
-  var orphanQuery = "'root' in parents and mimeType != 'application/vnd.google-apps.folder'";
-  // Already handled above — root.getFiles() covers this
-
-  // ── Step 4: Summary ───────────────────────────────────────────────
+  // ── Summary ────────────────────────────────────────────────────────
   log.push("");
   log.push("═══════════════════════════════════════════════════════════");
   log.push("  SUMMARY");
@@ -514,7 +609,6 @@ function runOrganization_(dryRun) {
 
   Logger.log(log.join("\n"));
 
-  // Also write to a spreadsheet for easy review if > 20 lines
   if (log.length > 20) {
     writeLogToSheet_(log, dryRun);
   }
@@ -525,16 +619,12 @@ function runOrganization_(dryRun) {
 // BATCHED VERSION — For large drives that may time out
 // ═══════════════════════════════════════════════════════════════════════
 
-/**
- * Processes files in batches using continuation tokens.
- * Creates a time-based trigger to continue if it runs out of time.
- */
 function organizeAllFilesBatched() {
   var scriptProperties = PropertiesService.getScriptProperties();
   var token = scriptProperties.getProperty("DRIVE_CONTINUATION_TOKEN");
   var batchLog = [];
   var startTime = new Date().getTime();
-  var MAX_RUNTIME = 5 * 60 * 1000; // 5 minutes (leave 1 min buffer)
+  var MAX_RUNTIME = 5 * 60 * 1000;
   var rules = getRules_();
   var folderCache = {};
   var moved = 0;
@@ -544,7 +634,6 @@ function organizeAllFilesBatched() {
     rootFiles = DriveApp.continueFileIterator(token);
     batchLog.push("Resuming from previous batch...");
   } else {
-    // First run — also do renames
     doRenames_();
     var root = DriveApp.getRootFolder();
     rootFiles = root.getFiles();
@@ -552,15 +641,11 @@ function organizeAllFilesBatched() {
   }
 
   while (rootFiles.hasNext()) {
-    // Check if we're running low on time
     if (new Date().getTime() - startTime > MAX_RUNTIME) {
-      // Save position and schedule continuation
       var continuationToken = rootFiles.getContinuationToken();
       scriptProperties.setProperty("DRIVE_CONTINUATION_TOKEN", continuationToken);
       batchLog.push("TIME LIMIT — Scheduling continuation. Moved " + moved + " files this batch.");
       Logger.log(batchLog.join("\n"));
-
-      // Create a trigger to continue in 1 minute
       ScriptApp.newTrigger("organizeAllFilesBatched")
         .timeBased()
         .after(60 * 1000)
@@ -570,7 +655,6 @@ function organizeAllFilesBatched() {
 
     var file = rootFiles.next();
     var fileName = file.getName();
-
     if (file.getMimeType() === "application/vnd.google-apps.script") continue;
 
     for (var r = 0; r < rules.length; r++) {
@@ -592,7 +676,6 @@ function organizeAllFilesBatched() {
     }
   }
 
-  // All done — clean up
   scriptProperties.deleteProperty("DRIVE_CONTINUATION_TOKEN");
   deleteTriggers_("organizeAllFilesBatched");
   batchLog.push("COMPLETE! Moved " + moved + " files in this final batch.");
@@ -606,7 +689,7 @@ function organizeAllFilesBatched() {
 
 /**
  * Resolves a folder path like ["Accounting", "Billing & Invoices"].
- * Uses startsWith matching for truncated folder names.
+ * Tries exact match first, then startsWith for partial names.
  */
 function resolveFolder_(pathArray) {
   var current = DriveApp.getRootFolder();
@@ -622,7 +705,7 @@ function resolveFolder_(pathArray) {
       found = true;
     }
 
-    // If not found, try startsWith (for truncated names)
+    // If not found, try startsWith (for truncated/partial names)
     if (!found) {
       var allSubs = current.getFolders();
       while (allSubs.hasNext()) {
@@ -643,9 +726,6 @@ function resolveFolder_(pathArray) {
   return current;
 }
 
-/**
- * Runs all renames from the rename list.
- */
 function doRenames_() {
   var renames = getRenames_();
   for (var i = 0; i < renames.length; i++) {
@@ -657,25 +737,17 @@ function doRenames_() {
   }
 }
 
-/**
- * Writes the log output to a Google Sheet for easy review.
- */
 function writeLogToSheet_(logLines, dryRun) {
   var sheetName = dryRun ? "Drive Organization Preview" : "Drive Organization Log";
   var ss = SpreadsheetApp.create(sheetName + " — " + new Date().toLocaleDateString());
   var sheet = ss.getActiveSheet();
   sheet.setName("Results");
-
   for (var i = 0; i < logLines.length; i++) {
     sheet.getRange(i + 1, 1).setValue(logLines[i]);
   }
-
   Logger.log("Log written to spreadsheet: " + ss.getUrl());
 }
 
-/**
- * Deletes time-based triggers for a given function name.
- */
 function deleteTriggers_(functionName) {
   var triggers = ScriptApp.getProjectTriggers();
   for (var i = 0; i < triggers.length; i++) {

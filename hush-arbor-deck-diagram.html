@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hush Arbor — Wraparound Deck Layout</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #1a1a2e;
+    color: #d4d4d4;
+    font-family: 'DM Sans', sans-serif;
+    padding: 16px;
+    min-height: 100vh;
+  }
+  h1 {
+    font-size: clamp(16px, 4vw, 26px);
+    color: #e0c97f;
+    text-align: center;
+    margin-bottom: 2px;
+    letter-spacing: 2px;
+    font-weight: 700;
+  }
+  .subtitle {
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: clamp(10px, 2.5vw, 13px);
+    color: #888;
+    margin-bottom: 16px;
+  }
+  .diagram-wrap {
+    width: 100%;
+    max-width: 960px;
+    margin: 0 auto;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  svg.deck-svg {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+  /* Legend */
+  .legend {
+    max-width: 960px;
+    margin: 20px auto 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 8px;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: clamp(10px, 2.2vw, 12px);
+  }
+  .swatch {
+    width: 20px; height: 14px;
+    border-radius: 3px;
+    flex-shrink: 0;
+  }
+  /* Area Summary */
+  .summary, .notes {
+    max-width: 960px;
+    margin: 20px auto 0;
+    background: #16213e;
+    border-radius: 8px;
+    padding: 14px;
+    border: 1px solid #2a2a4a;
+  }
+  .summary h2, .notes h2 {
+    font-size: clamp(13px, 3vw, 17px);
+    color: #e0c97f;
+    margin-bottom: 10px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: clamp(10px, 2.2vw, 12px);
+  }
+  th { color: #e0c97f; text-align: left; padding: 4px 6px; border-bottom: 1px solid #333; }
+  td { padding: 4px 6px; border-bottom: 1px solid #222; }
+  .total td { color: #e0c97f; font-weight: 700; border-top: 2px solid #e0c97f; }
+  .notes ol {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: clamp(10px, 2.2vw, 12px);
+    padding-left: 20px;
+    line-height: 1.8;
+  }
+  .notes li { margin-bottom: 2px; }
+  .tag-new { color: #6a8b6a; }
+  .tag-keep { color: #8a7a6a; }
+  .tag-remove { color: #ff6666; }
+</style>
+</head>
+<body>
+
+<h1>HUSH ARBOR — WRAPAROUND DECK LAYOUT</h1>
+<p class="subtitle">Top-Down View &middot; L-Shape Upper + Ground Patio &middot; Scale: 1 grid = 1 ft</p>
+
+<div class="diagram-wrap">
+<!--
+  Coordinate mapping (real feet -> SVG units):
+    svg_x = 120 + real_x * 22
+    svg_y = 100 + (real_y + 24) * 22
+
+  Key X: 0->120  19->538  27->714  28.5->747  48.5->1187
+  Key Y: -24->100  -20->188  -16->276  0->628  13->914
+-->
+<svg class="deck-svg" viewBox="0 0 1340 1060" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Board pattern: horizontal lines (Zones A, D) -->
+    <pattern id="boardH" x="0" y="0" width="22" height="8" patternUnits="userSpaceOnUse">
+      <line x1="0" y1="7" x2="22" y2="7" stroke="rgba(255,255,255,0.06)" stroke-width="0.5"/>
+    </pattern>
+    <!-- Board pattern: vertical lines (Zone B) -->
+    <pattern id="boardV" x="0" y="0" width="8" height="22" patternUnits="userSpaceOnUse">
+      <line x1="7" y1="0" x2="7" y2="22" stroke="rgba(255,255,255,0.06)" stroke-width="0.5"/>
+    </pattern>
+    <!-- Removed staircase hatch -->
+    <pattern id="xhatch" x="0" y="0" width="12" height="12" patternUnits="userSpaceOnUse">
+      <line x1="0" y1="0" x2="12" y2="12" stroke="rgba(255,80,80,0.25)" stroke-width="0.7"/>
+      <line x1="12" y1="0" x2="0" y2="12" stroke="rgba(255,80,80,0.25)" stroke-width="0.7"/>
+    </pattern>
+    <!-- Step hatch -->
+    <pattern id="stepH" x="0" y="0" width="33" height="10" patternUnits="userSpaceOnUse">
+      <line x1="0" y1="9" x2="33" y2="9" stroke="rgba(224,201,127,0.3)" stroke-width="0.7"/>
+    </pattern>
+    <!-- Arrowhead marker -->
+    <marker id="arrow" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6" fill="none" stroke="#e0c97f" stroke-width="1"/>
+    </marker>
+    <marker id="arrowR" markerWidth="8" markerHeight="6" refX="0" refY="3" orient="auto">
+      <path d="M8,0 L0,3 L8,6" fill="none" stroke="#e0c97f" stroke-width="1"/>
+    </marker>
+  </defs>
+
+  <!-- ============ HOUSE OUTLINE ============ -->
+  <!-- House body: back wall + right side wall corner region -->
+  <rect x="30" y="30" width="508" height="598" rx="0"
+        fill="#3a3a4a" stroke="#555" stroke-width="1.5" stroke-dasharray="8,4" opacity="0.55"/>
+  <text x="284" y="340" text-anchor="middle" fill="#777" font-family="DM Sans"
+        font-size="22" font-weight="700" letter-spacing="4">HOUSE</text>
+
+  <!-- ============ ZONE A — BACK DECK ============ -->
+  <rect x="120" y="628" width="418" height="286" rx="3"
+        fill="#6b4c3b" stroke="#8a6b54" stroke-width="2"/>
+  <rect x="120" y="628" width="418" height="286" fill="url(#boardH)"/>
+  <!-- Picture frame border -->
+  <rect x="126" y="634" width="406" height="274" rx="2"
+        fill="none" stroke="#8a6b54" stroke-width="1" opacity="0.5"/>
+  <!-- Zone label -->
+  <text x="329" y="720" text-anchor="middle" fill="#e0c97f" font-family="JetBrains Mono"
+        font-size="14" font-weight="500" opacity="0.9">ZONE A</text>
+  <text x="329" y="738" text-anchor="middle" fill="#ccc" font-family="JetBrains Mono"
+        font-size="10">BACK DECK (resurface)</text>
+  <text x="329" y="754" text-anchor="middle" fill="#999" font-family="JetBrains Mono"
+        font-size="9">19'-0" x 13'-0" = 247 sq ft</text>
+  <!-- Board direction arrow -->
+  <line x1="280" y1="775" x2="380" y2="775" stroke="#e0c97f" stroke-width="1" opacity="0.5"
+        marker-end="url(#arrow)" marker-start="url(#arrowR)"/>
+  <text x="330" y="790" text-anchor="middle" fill="#e0c97f" font-family="JetBrains Mono"
+        font-size="8" opacity="0.6">BOARDS &rarr;</text>
+
+  <!-- Electric meter -->
+  <rect x="155" y="625" width="18" height="10" fill="#ffcc00" stroke="#aa8800" stroke-width="1" rx="2"/>
+  <text x="164" y="620" text-anchor="middle" fill="#ffcc00" font-family="JetBrains Mono"
+        font-size="8" font-weight="500">ELEC METER</text>
+
+  <!-- Dining table + umbrella -->
+  <circle cx="384" cy="762" r="22" fill="none" stroke="#cc4444" stroke-width="1.5" stroke-dasharray="4,3"/>
+  <circle cx="384" cy="762" r="3" fill="#cc4444"/>
+  <text x="384" y="798" text-anchor="middle" fill="#cc8888" font-family="JetBrains Mono"
+        font-size="8">DINING + UMBRELLA</text>
+
+  <!-- Existing small staircase (bottom-left of Zone A) -->
+  <rect x="128" y="890" width="88" height="44" rx="2"
+        fill="#8a7a6a" stroke="#666" stroke-width="1.5"/>
+  <!-- Step lines inside -->
+  <line x1="128" y1="899" x2="216" y2="899" stroke="#555" stroke-width="0.7"/>
+  <line x1="128" y1="908" x2="216" y2="908" stroke="#555" stroke-width="0.7"/>
+  <line x1="128" y1="917" x2="216" y2="917" stroke="#555" stroke-width="0.7"/>
+  <line x1="128" y1="926" x2="216" y2="926" stroke="#555" stroke-width="0.7"/>
+  <text x="172" y="950" text-anchor="middle" fill="#aaa" font-family="JetBrains Mono"
+        font-size="8" font-weight="500">EXISTING STAIRS (keep)</text>
+  <text x="172" y="962" text-anchor="middle" fill="#888" font-family="JetBrains Mono"
+        font-size="7">to backyard / stone path</text>
+
+  <!-- Railings Zone A: left edge, bottom edge, bottom-right wrap -->
+  <!-- Left railing -->
+  <line x1="118" y1="628" x2="118" y2="914" stroke="#c9a96e" stroke-width="4" stroke-linecap="round"/>
+  <!-- Bottom railing -->
+  <line x1="118" y1="916" x2="538" y2="916" stroke="#c9a96e" stroke-width="4" stroke-linecap="round"/>
+
+  <!-- ============ ZONE B — RIGHT SIDE DECK ============ -->
+  <rect x="538" y="100" width="176" height="528" rx="3"
+        fill="#6b4c3b" stroke="#8a6b54" stroke-width="2"/>
+  <rect x="538" y="100" width="176" height="528" fill="url(#boardV)"/>
+  <!-- Picture frame border -->
+  <rect x="544" y="106" width="164" height="516" rx="2"
+        fill="none" stroke="#8a6b54" stroke-width="1" opacity="0.5"/>
+  <!-- Zone label -->
+  <text x="626" y="390" text-anchor="middle" fill="#e0c97f" font-family="JetBrains Mono"
+        font-size="14" font-weight="500" opacity="0.9">ZONE B</text>
+  <text x="626" y="408" text-anchor="middle" fill="#ccc" font-family="JetBrains Mono"
+        font-size="10">SIDE DECK</text>
+  <text x="626" y="422" text-anchor="middle" fill="#ccc" font-family="JetBrains Mono"
+        font-size="9">(resurface)</text>
+  <text x="626" y="440" text-anchor="middle" fill="#999" font-family="JetBrains Mono"
+        font-size="9">8'-0" x 24'-0"</text>
+  <text x="626" y="454" text-anchor="middle" fill="#999" font-family="JetBrains Mono"
+        font-size="9">= 192 sq ft</text>
+  <!-- Board direction arrow -->
+  <line x1="626" y1="468" x2="626" y2="530" stroke="#e0c97f" stroke-width="1" opacity="0.5"
+        marker-end="url(#arrow)"/>
+  <text x="648" y="502" text-anchor="middle" fill="#e0c97f" font-family="JetBrains Mono"
+        font-size="8" opacity="0.6" transform="rotate(90,648,502)">BOARDS</text>
+
+  <!-- Black door on house wall -->
+  <rect x="528" y="178" width="12" height="30" rx="1"
+        fill="#222" stroke="#888" stroke-width="1.5"/>
+  <text x="520" y="188" text-anchor="end" fill="#aaa" font-family="JetBrains Mono"
+        font-size="8" font-weight="500">BLACK DOOR</text>
+  <text x="520" y="199" text-anchor="end" fill="#777" font-family="JetBrains Mono"
+        font-size="7">(entry)</text>
+
+  <!-- Grill area -->
+  <rect x="548" y="352" width="28" height="28" rx="4"
+        fill="none" stroke="#ff8844" stroke-width="1.2" stroke-dasharray="3,2"/>
+  <text x="562" y="370" text-anchor="middle" fill="#ff8844" font-family="JetBrains Mono"
+        font-size="7">GRILL</text>
+
+  <!-- REMOVED STAIRCASE (Zone B outer edge, near black door) -->
+  <rect x="694" y="148" width="88" height="110" rx="2"
+        fill="rgba(255,80,80,0.1)" stroke="#ff4444" stroke-width="1.5" stroke-dasharray="6,3"/>
+  <rect x="694" y="148" width="88" height="110" fill="url(#xhatch)"/>
+  <!-- X marks -->
+  <line x1="700" y1="154" x2="776" y2="252" stroke="#ff4444" stroke-width="1.5" opacity="0.6"/>
+  <line x1="776" y1="154" x2="700" y2="252" stroke="#ff4444" stroke-width="1.5" opacity="0.6"/>
+  <text x="738" y="175" text-anchor="middle" fill="#ff6666" font-family="JetBrains Mono"
+        font-size="8" font-weight="500">LARGE STAIRCASE</text>
+  <text x="738" y="190" text-anchor="middle" fill="#ff4444" font-family="JetBrains Mono"
+        font-size="9" font-weight="700" text-decoration="line-through">REMOVE</text>
+  <text x="738" y="240" text-anchor="middle" fill="#ff8888" font-family="JetBrains Mono"
+        font-size="7">replaced by Zone C</text>
+
+  <!-- Railings Zone B: outer edge (right side), top edge (front end) -->
+  <!-- Top railing (front) -->
+  <line x1="538" y1="98" x2="714" y2="98" stroke="#c9a96e" stroke-width="4" stroke-linecap="round"/>
+  <!-- Right railing (outer) — will be replaced by step transition -->
+  <!-- We show it going only to where Zone C starts, but actually Zone C replaces it -->
+
+  <!-- ============ ZONE C — STEP TRANSITION ============ -->
+  <rect x="714" y="100" width="33" height="528" rx="2"
+        fill="rgba(224,201,127,0.15)" stroke="#e0c97f" stroke-width="1.5" stroke-dasharray="6,3"/>
+  <rect x="714" y="100" width="33" height="528" fill="url(#stepH)"/>
+  <!-- Step lines across width -->
+  <line x1="714" y1="200" x2="747" y2="200" stroke="#e0c97f" stroke-width="0.7" opacity="0.4"/>
+  <line x1="714" y1="300" x2="747" y2="300" stroke="#e0c97f" stroke-width="0.7" opacity="0.4"/>
+  <line x1="714" y1="400" x2="747" y2="400" stroke="#e0c97f" stroke-width="0.7" opacity="0.4"/>
+  <line x1="714" y1="500" x2="747" y2="500" stroke="#e0c97f" stroke-width="0.7" opacity="0.4"/>
+  <!-- Zone label (rotated) -->
+  <text x="730" y="380" text-anchor="middle" fill="#e0c97f" font-family="JetBrains Mono"
+        font-size="9" font-weight="500" transform="rotate(-90,730,380)">ZONE C — STEP TRANSITION</text>
+  <text x="730" y="500" text-anchor="middle" fill="#cca" font-family="JetBrains Mono"
+        font-size="7" transform="rotate(-90,730,500)">1'-6" x 24' (new) &middot; 5-6 risers @ 7"</text>
+
+  <!-- 1/2" gap callout between Zone B and C -->
+  <line x1="713" y1="560" x2="713" y2="600" stroke="#ff6b6b" stroke-width="2"/>
+  <line x1="715" y1="560" x2="715" y2="600" stroke="#ff6b6b" stroke-width="2"/>
+  <text x="690" y="590" text-anchor="end" fill="#ff6b6b" font-family="JetBrains Mono"
+        font-size="7" font-weight="500">&frac12;" GAP</text>
+
+  <!-- ============ ZONE D — GROUND PATIO ============ -->
+  <rect x="747" y="100" width="440" height="528" rx="3"
+        fill="#4a6b5a" stroke="#6a8b6a" stroke-width="2"/>
+  <rect x="747" y="100" width="440" height="528" fill="url(#boardH)"/>
+  <!-- Picture frame border -->
+  <rect x="753" y="106" width="428" height="516" rx="2"
+        fill="none" stroke="#6a8b6a" stroke-width="1" opacity="0.5"/>
+  <!-- Zone label -->
+  <text x="967" y="350" text-anchor="middle" fill="#e0c97f" font-family="JetBrains Mono"
+        font-size="16" font-weight="500" opacity="0.9">ZONE D</text>
+  <text x="967" y="372" text-anchor="middle" fill="#ccc" font-family="JetBrains Mono"
+        font-size="11">GROUND PATIO (new)</text>
+  <text x="967" y="392" text-anchor="middle" fill="#999" font-family="JetBrains Mono"
+        font-size="10">20'-0" x 24'-0" = 480 sq ft</text>
+  <text x="967" y="412" text-anchor="middle" fill="#888" font-family="JetBrains Mono"
+        font-size="9">on grade / sleeper system</text>
+  <!-- Board direction arrow -->
+  <line x1="920" y1="435" x2="1020" y2="435" stroke="#e0c97f" stroke-width="1" opacity="0.5"
+        marker-end="url(#arrow)" marker-start="url(#arrowR)"/>
+  <text x="970" y="450" text-anchor="middle" fill="#e0c97f" font-family="JetBrains Mono"
+        font-size="8" opacity="0.6">BOARDS &rarr;</text>
+
+  <text x="967" y="478" text-anchor="middle" fill="#6a8b6a" font-family="JetBrains Mono"
+        font-size="8">SURFACE: TBD (pavers / sleepers / concrete)</text>
+  <text x="967" y="494" text-anchor="middle" fill="#6a8b6a" font-family="JetBrains Mono"
+        font-size="8">RAILING: verify code req (ground level)</text>
+
+  <!-- ============ DIMENSION LINES ============ -->
+  <!-- Zone A width: 19' -->
+  <line x1="120" y1="640" x2="538" y2="640" stroke="#e0c97f" stroke-width="0.7" opacity="0"/>
+  <line x1="120" y1="945" x2="120" y2="960" stroke="#e0c97f" stroke-width="0.7"/>
+  <line x1="538" y1="945" x2="538" y2="960" stroke="#e0c97f" stroke-width="0.7"/>
+  <line x1="120" y1="955" x2="538" y2="955" stroke="#e0c97f" stroke-width="0.8"
+        marker-end="url(#arrow)" marker-start="url(#arrowR)"/>
+  <text x="329" y="975" text-anchor="middle" fill="#e0c97f" font-family="JetBrains Mono"
+        font-size="10" font-weight="500">19'-0"</text>
+  <text x="329" y="988" text-anchor="middle" fill="#aa9955" font-family="JetBrains Mono"
+        font-size="8">(Zone A width)</text>
+
+  <!-- Zone A depth: 13' (left side) -->
+  <line x1="85" y1="628" x2="105" y2="628" stroke="#e0c97f" stroke-width="0.7"/>
+  <line x1="85" y1="914" x2="105" y2="914" stroke="#e0c97f" stroke-width="0.7"/>
+  <line x1="95" y1="628" x2="95" y2="914" stroke="#e0c97f" stroke-width="0.8"
+        marker-end="url(#arrow)" marker-start="url(#arrowR)"/>
+  <text x="82" y="775" text-anchor="middle" fill="#e0c97f" font-family="JetBrains Mono"
+        font-size="10" font-weight="500" transform="rotate(-90,82,775)">13'-0"</text>
+
+  <!-- Zone B width: 8' (bottom, between house wall and outer edge) -->
+  <line x1="538" y1="640" x2="538" y2="652" stroke="#e0c97f" stroke-width="0.7"/>
+  <line x1="714" y1="640" x2="714" y2="652" stroke="#e0c97f" stroke-width="0.7"/>
+  <line x1="538" y1="648" x2="714" y2="648" stroke="#e0c97f" stroke-width="0.8"
+        marker-end="url(#arrow)" marker-start="url(#arrowR)"/>
+  <text x="626" y="665" text-anchor="middle" fill="#e0c97f" font-family="JetBrains Mono"
+        font-size="10" font-weight="500">8'-0"</text>
+
+  <!-- Zone B length: 24' (right side) -->
+  <line x1="1205" y1="100" x2="1225" y2="100" stroke="#e0c97f" stroke-width="0.7"/>
+  <line x1="1205" y1="628" x2="1225" y2="628" stroke="#e0c97f" stroke-width="0.7"/>
+  <line x1="1215" y1="100" x2="1215" y2="628" stroke="#e0c97f" stroke-width="0.8"
+        marker-end="url(#arrow)" marker-start="url(#arrowR)"/>
+  <text x="1240" y="370" text-anchor="middle" fill="#e0c97f" font-family="JetBrains Mono"
+        font-size="10" font-weight="500" transform="rotate(90,1240,370)">24'-0" (Zones B, C, D length)</text>
+
+  <!-- Zone C width: 1'-6" -->
+  <line x1="714" y1="80" x2="714" y2="92" stroke="#e0c97f" stroke-width="0.7"/>
+  <line x1="747" y1="80" x2="747" y2="92" stroke="#e0c97f" stroke-width="0.7"/>
+  <line x1="714" y1="87" x2="747" y2="87" stroke="#e0c97f" stroke-width="0.8"
+        marker-end="url(#arrow)" marker-start="url(#arrowR)"/>
+  <text x="730" y="78" text-anchor="middle" fill="#e0c97f" font-family="JetBrains Mono"
+        font-size="8" font-weight="500">1'-6"</text>
+
+  <!-- Zone D width: 20' -->
+  <line x1="747" y1="80" x2="747" y2="70" stroke="#e0c97f" stroke-width="0.7"/>
+  <line x1="1187" y1="80" x2="1187" y2="70" stroke="#e0c97f" stroke-width="0.7"/>
+  <line x1="747" y1="72" x2="1187" y2="72" stroke="#e0c97f" stroke-width="0.8"
+        marker-end="url(#arrow)" marker-start="url(#arrowR)"/>
+  <text x="967" y="65" text-anchor="middle" fill="#e0c97f" font-family="JetBrains Mono"
+        font-size="10" font-weight="500">20'-0" (Zone D)</text>
+
+  <!-- Total footprint width: ~48'-6" bottom -->
+  <line x1="120" y1="1005" x2="120" y2="1020" stroke="#e0c97f" stroke-width="0.7"/>
+  <line x1="1187" y1="1005" x2="1187" y2="1020" stroke="#e0c97f" stroke-width="0.7"/>
+  <line x1="120" y1="1015" x2="1187" y2="1015" stroke="#e0c97f" stroke-width="0.8"
+        marker-end="url(#arrow)" marker-start="url(#arrowR)"/>
+  <text x="653" y="1035" text-anchor="middle" fill="#e0c97f" font-family="JetBrains Mono"
+        font-size="11" font-weight="700">TOTAL WIDTH: ~48'-6"</text>
+
+  <!-- Total depth: ~37' -->
+  <line x1="55" y1="100" x2="72" y2="100" stroke="#e0c97f" stroke-width="0.7"/>
+  <line x1="55" y1="914" x2="72" y2="914" stroke="#e0c97f" stroke-width="0.7"/>
+  <line x1="62" y1="100" x2="62" y2="914" stroke="#e0c97f" stroke-width="0.8"
+        marker-end="url(#arrow)" marker-start="url(#arrowR)"/>
+  <text x="48" y="510" text-anchor="middle" fill="#e0c97f" font-family="JetBrains Mono"
+        font-size="10" font-weight="700" transform="rotate(-90,48,510)">TOTAL DEPTH: ~37'-0"</text>
+
+  <!-- ============ ORIENTATION LABELS ============ -->
+  <!-- Yard label (bottom) -->
+  <text x="329" y="1000" text-anchor="middle" fill="#557755" font-family="DM Sans"
+        font-size="13" font-weight="700" letter-spacing="3" opacity="0.7">BACKYARD</text>
+  <!-- Driveway label (top-right) -->
+  <text x="626" y="50" text-anchor="middle" fill="#555577" font-family="DM Sans"
+        font-size="13" font-weight="700" letter-spacing="3" opacity="0.7">DRIVEWAY / FRONT</text>
+
+  <!-- Compass rose -->
+  <g transform="translate(1270,940)">
+    <circle cx="0" cy="0" r="28" fill="none" stroke="#555" stroke-width="1"/>
+    <line x1="0" y1="-24" x2="0" y2="24" stroke="#777" stroke-width="0.8"/>
+    <line x1="-24" y1="0" x2="24" y2="0" stroke="#777" stroke-width="0.8"/>
+    <text x="0" y="-30" text-anchor="middle" fill="#e0c97f" font-family="JetBrains Mono"
+          font-size="10" font-weight="700">N</text>
+    <text x="0" y="40" text-anchor="middle" fill="#888" font-family="JetBrains Mono"
+          font-size="9">S</text>
+    <text x="34" y="4" text-anchor="middle" fill="#888" font-family="JetBrains Mono"
+          font-size="9">E</text>
+    <text x="-34" y="4" text-anchor="middle" fill="#888" font-family="JetBrains Mono"
+          font-size="9">W</text>
+    <!-- North arrow -->
+    <polygon points="0,-22 -5,-14 5,-14" fill="#e0c97f"/>
+  </g>
+
+  <!-- ============ HEIGHT ANNOTATIONS ============ -->
+  <!-- Zone A/B height -->
+  <text x="140" y="660" fill="#aaa" font-family="JetBrains Mono" font-size="8" opacity="0.7">
+    HEIGHT: 3-4' above grade</text>
+  <!-- Zone D height -->
+  <text x="770" y="588" fill="#8a8" font-family="JetBrains Mono" font-size="8" opacity="0.7">
+    HEIGHT: 0-6" above grade</text>
+
+</svg>
+</div>
+
+<!-- ============ LEGEND ============ -->
+<div class="legend">
+  <div class="legend-item">
+    <div class="swatch" style="background:#6b4c3b;border:1px solid #8a6b54"></div>
+    Upper Deck (A+B) &mdash; resurface
+  </div>
+  <div class="legend-item">
+    <div class="swatch" style="background:rgba(224,201,127,0.25);border:1px dashed #e0c97f"></div>
+    Step Transition (C) &mdash; new
+  </div>
+  <div class="legend-item">
+    <div class="swatch" style="background:#4a6b5a;border:1px solid #6a8b6a"></div>
+    Ground Patio (D) &mdash; new
+  </div>
+  <div class="legend-item">
+    <div class="swatch" style="background:rgba(255,80,80,0.15);border:1px dashed #ff4444"></div>
+    Removed Staircase &mdash; demo
+  </div>
+  <div class="legend-item">
+    <div class="swatch" style="background:#8a7a6a;border:1px solid #666"></div>
+    Existing Stairs &mdash; keep
+  </div>
+  <div class="legend-item">
+    <div class="swatch" style="background:#c9a96e;border:none;height:4px;border-radius:2px;align-self:center"></div>
+    Railings
+  </div>
+  <div class="legend-item">
+    <div class="swatch" style="background:transparent;border:2px solid #ff6b6b;height:4px;border-radius:0"></div>
+    Structural Gap (&frac12;")
+  </div>
+</div>
+
+<!-- ============ AREA SUMMARY ============ -->
+<div class="summary">
+  <h2>Total Area Summary</h2>
+  <table>
+    <thead><tr><th>Zone</th><th>Dimensions</th><th>Sq Ft</th><th>Status</th></tr></thead>
+    <tbody>
+      <tr><td>A &mdash; Back Deck</td><td>19' &times; 13'</td><td>247</td><td>Resurface</td></tr>
+      <tr><td>B &mdash; Side Deck</td><td>8' &times; 24'</td><td>192</td><td>Resurface</td></tr>
+      <tr><td>C &mdash; Step Transition</td><td>1.5' &times; 24'</td><td>36</td><td class="tag-new">New</td></tr>
+      <tr><td>D &mdash; Ground Patio</td><td>20' &times; 24'</td><td>480</td><td class="tag-new">New</td></tr>
+      <tr class="total"><td><strong>Total</strong></td><td></td><td><strong>955</strong></td><td></td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ============ BUILD NOTES ============ -->
+<div class="notes">
+  <h2>Build Notes</h2>
+  <ol>
+    <li>Upper deck (Zones A+B): Resurface only &mdash; no structural changes</li>
+    <li>Zone C step transition: <strong>NOT</strong> structurally attached to Zone B rim joist &mdash; &frac12;" expansion gap</li>
+    <li>Zone D ground patio: Freestanding, on grade &mdash; no footings required if paver/sleeper system</li>
+    <li class="tag-remove">Large staircase removed &mdash; replaced by Zone C full-length step-down</li>
+    <li class="tag-keep">Small backyard staircase (Zone A, left side): Keep as-is</li>
+    <li>Board directions: Zone A = parallel to back wall; Zone B = parallel to side wall; Zone D = perpendicular to side wall</li>
+    <li>Verify local code for: railing requirements on ground-level patio, step riser height, permit requirements for new patio footprint</li>
+    <li>Electric meter (back wall) &mdash; ensure no obstruction during construction</li>
+    <li>Black door (side wall) &mdash; maintain clear egress path from door to patio</li>
+  </ol>
+</div>
+
+</body>
+</html>

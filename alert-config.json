@@ -1,0 +1,37 @@
+{
+  "description": "SynergyGrid health-check alert configuration for Jarvez bot",
+  "alertPolicy": {
+    "checkIntervalMinutes": 15,
+    "aliveAlertIntervalMinutes": 75,
+    "dailySummaryHourUTC": 8,
+    "rules": {
+      "statusChange": {
+        "action": "send_immediately",
+        "note": "Any up->down or down->up transition is always sent without delay"
+      },
+      "stillDown": {
+        "action": "send_every_check",
+        "note": "While a system is down, every 15-min check produces an alert"
+      },
+      "stillAlive": {
+        "action": "suppress_until_interval",
+        "intervalMinutes": 75,
+        "note": "Routine alive confirmations sent once per 75 min (1 in 5 checks, 80% reduction)"
+      }
+    }
+  },
+  "systems": [
+    { "name": "SG1", "endpointPropertyKey": "SG1_HEALTH_URL" },
+    { "name": "SG2", "endpointPropertyKey": "SG2_HEALTH_URL" }
+  ],
+  "checkId": "A208",
+  "telegram": {
+    "botTokenPropertyKey": "TELEGRAM_BOT_TOKEN",
+    "chatIdPropertyKey": "TELEGRAM_CHAT_ID"
+  },
+  "expectedAlertVolume": {
+    "before": "96 alerts/day (every 15 min)",
+    "after": "~19 alerts/day (every 75 min) + instant alerts on failures",
+    "reduction": "80%"
+  }
+}
